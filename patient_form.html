@@ -1,0 +1,222 @@
+{% extends "import.html" %}
+{% block content %}
+
+<div class="hero-section bg-secondary text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">
+            <i class="fas fa-heartbeat"></i>
+            Patient Stroke Risk Assessment
+        </h1>
+        <p class="lead">Comprehensive Risk Evaluation Using Machine Learning</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">
+                        <i class="fas fa-clipboard-list"></i>
+                        Health Assessment Form
+                    </h2>
+                    <form id="patient-form">
+                        <div class="row g-3">
+                            <!-- Numerical Inputs -->
+                            <div class="col-md-6">
+                                <label for="age" class="form-label">
+                                    <i class="fas fa-birthday-cake"></i>
+                                    Age
+                                </label>
+                                <input type="number" class="form-control" id="age" name="age" placeholder="e.g., 55" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="avg_glucose_level" class="form-label">
+                                    <i class="fas fa-flask"></i>
+                                    Average Glucose Level
+                                </label>
+                                <input type="number" step="0.01" class="form-control" id="avg_glucose_level" name="avg_glucose_level" placeholder="e.g., 105.3" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="bmi" class="form-label">
+                                    <i class="fas fa-weight"></i>
+                                    BMI
+                                </label>
+                                <input type="number" step="0.1" class="form-control" id="bmi" name="bmi" placeholder="e.g., 28.7" required>
+                            </div>
+
+                            <!-- Binary Categorical Inputs -->
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">
+                                    <i class="fas fa-venus-mars"></i>
+                                    Gender
+                                </label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="hypertension" class="form-label">
+                                    <i class="fas fa-stethoscope"></i>
+                                    Hypertension
+                                </label>
+                                <select class="form-select" id="hypertension" name="hypertension" required>
+                                    <option value="">Select</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="heart_disease" class="form-label">
+                                    <i class="fas fa-heart"></i>
+                                    Heart Disease
+                                </label>
+                                <select class="form-select" id="heart_disease" name="heart_disease" required>
+                                    <option value="">Select</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="ever_married" class="form-label">
+                                    <i class="fas fa-ring"></i>
+                                    Ever Married
+                                </label>
+                                <select class="form-select" id="ever_married" name="ever_married" required>
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="Residence_type" class="form-label">
+                                    <i class="fas fa-home"></i>
+                                    Residence Type
+                                </label>
+                                <select class="form-select" id="Residence_type" name="Residence_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Urban">Urban</option>
+                                    <option value="Rural">Rural</option>
+                                </select>
+                            </div>
+
+                            <!-- Multi-C_categorical Inputs -->
+                            <div class="col-md-6">
+                                <label for="work_type" class="form-label">
+                                    <i class="fas fa-briefcase"></i>
+                                    Work Type
+                                </label>
+                                <select class="form-select" id="work_type" name="work_type" required>
+                                    <option value="">Select Work Type</option>
+                                    <option value="Private">Private</option>
+                                    <option value="Self-employed">Self-employed</option>
+                                    <option value="Govt_job">Government Job</option>
+                                    <option value="children">Children</option>
+                                    <option value="Never_worked">Never Worked</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="smoking_status" class="form-label">
+                                    <i class="fas fa-smoking"></i>
+                                    Smoking Status
+                                </label>
+                                <select class="form-select" id="smoking_status" name="smoking_status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="formerly smoked">Formerly Smoked</option>
+                                    <option value="never smoked">Never Smoked</option>
+                                    <option value="smokes">Smokes</option>
+                                    <option value="Unknown">Unknown</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="fas fa-chart-line"></i>
+                                Predict Risk
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="loader mx-auto mt-4" style="display:none;"></div>
+                    <div id="result-container" class="alert alert-dismissible fade mt-4" role="alert" style="display:none;">
+                        <h5 id="result-category"></h5>
+                        <p id="result-precautions"></p>
+                        <button type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('patient-form');
+    const loader = document.querySelector('.loader');
+    const resultContainer = document.getElementById('result-container');
+    const resultCategory = document.getElementById('result-category');
+    const resultPrecautions = document.getElementById('result-precautions');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Show loader and hide previous results
+        loader.style.display = 'block';
+        resultContainer.style.display = 'none';
+        resultContainer.className = ''; // Reset class
+
+        // Collect form data into an object
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            // Convert numerical fields from string to number
+            const numFields = ['age', 'avg_glucose_level', 'bmi', 'hypertension', 'heart_disease'];
+            if (numFields.includes(key)) {
+                data[key] = parseFloat(value);
+            } else {
+                data[key] = value;
+            }
+        });
+
+        // Make prediction by calling api /predict_stroke_risk
+        fetch('/predict_stroke_risk', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(result => {
+            loader.style.display = 'none';
+            
+            if (result.error) {
+                resultCategory.innerText = 'Error';
+                resultPrecautions.innerText = result.error;
+                resultContainer.className = 'high-risk'; // Use high-risk style for errors
+            } else {
+                // Display the result
+                const risk = result.risk_category;
+                resultCategory.innerText = 'Risk Category: ' + risk;
+                resultPrecautions.innerHTML = result.precautions.replace(/\n/g, '<br>');
+
+                // Set background color based on risk
+                resultContainer.classList.add(risk.toLowerCase() + '-risk');
+            }
+            resultContainer.style.display = 'block';
+        })
+        .catch(error => {
+            loader.style.display = 'none';
+            resultCategory.innerText = 'Error';
+            resultPrecautions.innerText = 'An unexpected error occurred. Please check the console.';
+            resultContainer.className = 'high-risk';
+            resultContainer.style.display = 'block';
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
+
+{% endblock %}

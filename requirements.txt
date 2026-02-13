@@ -1,0 +1,12 @@
+Flask
+tensorflow
+pandas
+joblib
+numpy
+python-dotenv
+google-generativeai
+scikit-learn
+opencv-python
+matplotlib
+seaborn
+werkzeug

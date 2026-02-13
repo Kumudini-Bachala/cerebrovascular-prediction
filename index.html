@@ -1,0 +1,132 @@
+{% extends "import.html" %}
+{% block content %}
+
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container text-center">
+        <h1 class="display-4 fw-bold">
+            <i class="fas fa-brain"></i>
+            Brain Stroke Classification
+        </h1>
+        <p class="lead">Using Deep Learning for Advanced Medical Image Analysis</p>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Upload Brain Image for Analysis</h2>
+
+                    <form id="upload-file" method="post" enctype="multipart/form-data" class="text-center">
+                        <div class="mb-4">
+                            <label for="imageUpload" class="form-label fs-5">Select Brain Scan Image</label>
+                            <input type="file" name="file" class="form-control form-control-lg" id="imageUpload" accept=".png, .jpg, .jpeg" required>
+                            <div class="form-text">Supported formats: PNG, JPG, JPEG</div>
+                        </div>
+                    </form>
+
+                    <div class="image-section" style="display:none;">
+                        <div class="text-center mb-4">
+                            <h5>Preview:</h5>
+                            <img id="imagePreview" class="img-fluid rounded shadow" src="#" style="max-width:400px;max-height:400px;" alt="Brain scan preview"/><br><br>
+                        </div>
+                        <div class="text-center">
+                            <button type="button" class="btn btn-primary btn-lg px-5" id="btn-predict">
+                                <i class="fas fa-search"></i>
+                                Predict Stroke Risk
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="loader mx-auto mt-4" style="display:none;"></div>
+
+                    <div id="result" class="alert alert-info alert-dismissible fade show mt-4" style="display:none;" role="alert">
+                        <h5 id="result-title" class="alert-heading"></h5>
+                        <p id="result-content"></p>
+                        <button type="button" class="btn-close" aria-label="Close"></button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    // Init
+    $('.image-section').hide();
+    $('.loader').hide();
+    $('#result').hide();
+
+    function readURL(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview').attr( 'src', e.target.result );
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#imageUpload").change(function () {
+        $('.image-section').show();
+        $('#btn-predict').show();
+        $('#result').hide();
+        readURL(this);
+    });
+
+    // Predict
+    $('#btn-predict').click(function () {
+        var form_data = new FormData($('#upload-file')[0]);
+
+        // Show loading animation
+        $(this).prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...');
+        $('.loader').show();
+
+        // Make prediction by calling api /predict
+        $.ajax({
+            type: 'POST',
+            url: '/predict',
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            timeout: 60000,
+            success: function (data) {
+                $('.loader').hide();
+                $('#btn-predict').prop('disabled', false).html('<i class="fas fa-search"></i> Predict Stroke Risk');
+
+                var prediction = data.prediction;
+                var probability = data.probabilities[prediction];
+                var probabilityPercent = (probability * 100).toFixed(2);
+
+                var iconClass = prediction === 'Stroke' ? 'fas fa-exclamation-triangle text-danger' : 'fas fa-check-circle text-success';
+                var alertClass = prediction === 'Stroke' ? 'alert-danger' : 'alert-success';
+
+                $('#result').removeClass('alert-info alert-danger alert-success').addClass(alertClass);
+                $('#result-title').html('<i class="' + iconClass + '"></i> Prediction: ' + prediction);
+                $('#result-content').html('Confidence: ' + probabilityPercent + '%');
+
+                $('#result').show();
+            },
+            error: function(xhr, status, error) {
+                $('.loader').hide();
+                $('#btn-predict').prop('disabled', false).html('<i class="fas fa-search"></i> Predict Stroke Risk');
+                $('#result').removeClass('alert-danger alert-success').addClass('alert-danger');
+                $('#result-title').html('<i class="fas fa-times-circle"></i> Error');
+                $('#result-content').html(xhr.responseJSON ? xhr.responseJSON.error : 'An error occurred during prediction. Please try again.');
+                $('#result').show();
+            }
+        });
+    });
+
+    // Close result alert
+    $('#result button').click(function() {
+        $('#result').hide();
+    });
+});
+</script>
+
+{% endblock %}
